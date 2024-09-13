@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Container } from "../../components/container";
 import logoImg from '../../assets/logo.svg'
@@ -7,7 +8,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { auth } from '../../services/firebaseConnection'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth'
 
 
 const schema = z.object({
@@ -25,9 +26,17 @@ export function Register() {
     mode: "onChange"
   })
 
+  useEffect(() => {
+    async function handleLogout() {
+      await signOut(auth)
+    }
+
+    handleLogout();
+  }, [])
+
   async function onSubmit(data: FormData) {
     createUserWithEmailAndPassword(auth, data.email, data.password)
-    .then(async (user) => {
+      .then(async (user) => {
         await updateProfile(user.user, {
           displayName: data.name
         })
@@ -35,11 +44,11 @@ export function Register() {
         console.log("CADASTRADO COM SUCESSO")
         navigate("/dashboard", { replace: true })
         return;
-    })
-    .catch((error) => {
-      console.log("ERRO AO CADASTRAR ESTE USUARIO")
-      console.log(error);
-    })
+      })
+      .catch((error) => {
+        console.log("ERRO AO CADASTRAR ESTE USUARIO")
+        console.log(error);
+      })
 
   }
 
